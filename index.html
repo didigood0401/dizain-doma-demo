@@ -1,0 +1,137 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Дизайн-проект дома - демо</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Onest:wght@400;500;600;700&family=Cormorant+Garamond:wght@500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#f3efe9;--pap:#fbf9f6;--ink:#23201c;--mut:#857c71;--line:#ddd5ca;--acc:#a8643a;--el:#d23c2f;--wa:#2b78c4;--li:#e0a21b}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:Onest,system-ui,sans-serif;background:var(--bg);color:var(--ink)}
+header{max-width:1280px;margin:0 auto;padding:28px 16px 6px;display:flex;flex-wrap:wrap;align-items:end;gap:10px 30px}
+h1{font-family:'Cormorant Garamond',serif;font-weight:600;font-size:clamp(34px,5vw,58px);line-height:.95;letter-spacing:-.01em}
+h1 em{color:var(--acc)}
+.lead{color:var(--mut);max-width:520px;font-size:14.5px;line-height:1.5}
+.styles{display:flex;gap:6px;margin-left:auto}
+.styles button{border:1px solid var(--line);background:var(--pap);padding:8px 12px;border-radius:99px;font:500 13px Onest;cursor:pointer;color:var(--ink)}
+.styles button.on{background:var(--ink);color:#fff;border-color:var(--ink)}
+.grid{max-width:1280px;margin:16px auto 0;padding:0 16px 30px;display:grid;grid-template-columns:1.05fr 1fr;gap:16px}
+.card{background:var(--pap);border:1px solid var(--line);border-radius:16px;overflow:hidden;position:relative}
+.bar{display:flex;flex-wrap:wrap;gap:6px;padding:10px 12px;border-bottom:1px solid var(--line);align-items:center}
+.bar b{font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--mut);margin-right:6px}
+.bar label{display:flex;gap:5px;align-items:center;font-size:12.5px;padding:5px 9px;border-radius:99px;border:1px solid var(--line);cursor:pointer;user-select:none}
+.bar label input{accent-color:var(--ink)}
+.bar label i{width:9px;height:9px;border-radius:50%}
+#plan svg{display:block;width:100%;height:auto}
+#v3d{min-height:520px}
+#v3d canvas{display:block;width:100%;height:100%;position:absolute;inset:0}
+.hint{position:absolute;left:12px;bottom:12px;font-size:12px;color:var(--mut);background:#fbf9f6dd;padding:4px 9px;border-radius:7px;pointer-events:none}
+.rooms{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:10px}
+.room{background:var(--pap);border:1px solid var(--line);border-radius:14px;padding:12px;cursor:pointer;transition:transform .2s,border-color .2s}
+.room:hover,.room.on{border-color:var(--acc);transform:translateY(-2px)}
+.room b{display:block;font-size:14px}.room span{font:12px 'IBM Plex Mono';color:var(--mut)}
+.room .pal{display:flex;gap:4px;margin-top:8px}.room .pal i{flex:1;height:16px;border-radius:4px}
+.sheet{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:10px}
+.sheet div{background:var(--pap);border:1px solid var(--line);border-radius:12px;padding:10px 12px;font-size:13px;display:flex;gap:10px;align-items:center}
+.sheet div span{font:500 11px 'IBM Plex Mono';color:#fff;background:var(--ink);border-radius:6px;padding:3px 6px}
+footer{max-width:1280px;margin:0 auto;padding:0 16px 40px;color:var(--mut);font-size:12.5px}
+@media (max-width:960px){.grid{grid-template-columns:1fr}#v3d{min-height:400px}.styles{margin-left:0}}
+</style>
+</head>
+<body>
+<header>
+ <div><h1>Дом · 3 спальни,<br>3 санузла, <em>кухня-гостиная</em></h1></div>
+ <p class="lead">Демо дизайн-проекта: рабочие чертежи со слоями для строителей и 3D-вид того же плана. Переключайте слои, стиль интерьера, кликайте по комнатам.</p>
+ <div class="styles" id="styles"><button class="on" data-s="0">Сканди</button><button data-s="1">Современная классика</button><button data-s="2">Лофт</button></div>
+</header>
+<section class="grid">
+ <div class="card" id="plan">
+  <div class="bar"><b>Чертёж</b>
+   <label><input type="checkbox" data-l="dim" checked>Размеры</label>
+   <label><input type="checkbox" data-l="furn" checked>Мебель</label>
+   <label><input type="checkbox" data-l="el"><i style="background:var(--el)"></i>Электрика</label>
+   <label><input type="checkbox" data-l="li"><i style="background:var(--li)"></i>Свет</label>
+   <label><input type="checkbox" data-l="wa"><i style="background:var(--wa)"></i>Сантехника</label>
+  </div>
+  <div id="svg"></div>
+ </div>
+ <div class="card" id="v3d"><div class="hint">3D · вращайте, колесо - масштаб</div></div>
+ <div class="rooms" id="rooms"></div>
+ <div class="sheet" id="sheet"></div>
+</section>
+<footer>Демо: планировка условная (≈ 150 м²). В проекте - ваш план, обмеры и полный комплект листов с привязками в мм.</footer>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<script>
+// plan in mm, origin top-left
+const R=[
+ {id:"kg",n:"Кухня-гостиная",x:0,y:0,w:7600,h:6200,t:"live"},
+ {id:"h",n:"Холл",x:7600,y:0,w:2400,h:6200,t:"hall"},
+ {id:"s1",n:"Мастер-спальня",x:10000,y:0,w:4400,h:4200,t:"bed"},
+ {id:"b1",n:"С/у мастер",x:10000,y:4200,w:2400,h:2000,t:"bath"},
+ {id:"w",n:"Гардероб",x:12400,y:4200,w:2000,h:2000,t:"hall"},
+ {id:"s2",n:"Спальня 2",x:0,y:6200,w:4200,h:3800,t:"bed"},
+ {id:"b2",n:"Санузел",x:4200,y:6200,w:2200,h:2200,t:"bath"},
+ {id:"c",n:"Коридор",x:4200,y:8400,w:5800,h:1600,t:"hall"},
+ {id:"b3",n:"Гост. с/у",x:6400,y:6200,w:1800,h:2200,t:"bath"},
+ {id:"tc",n:"Котельная",x:8200,y:6200,w:1800,h:2200,t:"hall"},
+ {id:"s3",n:"Спальня 3",x:10000,y:6200,w:4400,h:3800,t:"bed"}];
+const STY=[
+ {n:"Сканди",floor:{live:"#d9c3a3",bed:"#dcc7a8",bath:"#e9e6e1",hall:"#d1bb9a"},wall:"#f4f1ec",acc:["#f4f1ec","#d9c3a3","#7d8c86","#2f3a3a"],furn:"#cfd5d2"},
+ {n:"Современная классика",floor:{live:"#b98d64",bed:"#c09670",bath:"#efe9df",hall:"#a8805c"},wall:"#efe6da",acc:["#efe6da","#b98d64","#5c6b7a","#c8a35a"],furn:"#8a97a6"},
+ {n:"Лофт",floor:{live:"#8f7a68",bed:"#9b8572",bath:"#b9b6b0",hall:"#7f6c5c"},wall:"#c9b8a8",acc:["#4a4542","#8f7a68","#b0583a","#d8d2c8"],furn:"#4a4542"}];
+let st=0,sel=null;
+const L={dim:1,furn:1,el:0,li:0,wa:0};
+// furniture: [room, x,y,w,h,label]
+const F=[["kg",400,400,2400,900,"Кухня"],["kg",400,1300,600,1800,""],["kg",3400,2400,1400,900,"Остров"],["kg",4600,4000,2600,1000,"Диван"],["kg",5100,3000,1500,900,"Стол"],["kg",400,4300,1100,1500,"Обеденная"],
+ ["s1",1100,1000,2000,2200,"Кровать 200"],["s1",300,300,600,1800,"Комод"],["s2",1100,900,1800,2000,"Кровать 180"],["s2",300,3000,1600,600,"Шкаф"],["s3",1200,900,1600,2000,"Кровать 160"],["s3",2800,2900,1400,700,"Стол"],
+ ["b1",200,200,800,1600,"Душ"],["b1",1400,1300,800,500,"Раковина"],["b2",200,200,1700,750,"Ванна"],["b2",1400,1500,600,500,"Раковина"],["b3",900,1500,700,500,""],["tc",200,200,650,650,"Котёл"],["tc",1000,200,600,600,"СМА"]];
+const EL=[["kg",300,3500,"r"],["kg",2600,300,"r"],["kg",3100,300,"r"],["kg",7300,4400,"r"],["kg",4000,6000,"s"],["s1",300,2600,"r"],["s1",3200,300,"r"],["s1",4200,3900,"s"],["s2",400,400,"r"],["s2",3900,3500,"s"],["s3",4100,3000,"r"],["s3",4100,300,"s"],["b1",2100,1700,"r"],["b2",2000,1900,"s"],["h",2100,5900,"s"],["c",3000,1400,"s"]];
+const LI=[["kg",1800,800],["kg",4000,2800],["kg",5900,4500],["kg",1000,5000],["s1",2100,2100],["s2",2000,1900],["s3",2200,1900],["b1",1200,1000],["b2",1100,1100],["b3",900,1100],["h",1200,3000],["c",1500,800],["c",4300,800],["tc",900,1100]];
+const WA=[["kg",1200,500],["kg",1800,500],["b1",600,500],["b1",1800,1500],["b1",400,1600],["b2",900,500],["b2",1700,1700],["b3",1200,1700],["b3",400,500],["tc",500,500],["tc",1300,500]];
+const room=id=>R.find(r=>r.id==id);
+function svg(){const S=.05,pad=60,W=14400*S+pad*2,H=10000*S+pad*2,X=x=>pad+x*S,Y=y=>pad+y*S,s=STY[st];let g="";
+ R.forEach(r=>{g+=`<rect x="${X(r.x)}" y="${Y(r.y)}" width="${r.w*S}" height="${r.h*S}" fill="${s.floor[r.t]}" fill-opacity="${sel&&sel!=r.id?.35:.75}" stroke="#23201c" stroke-width="5" data-id="${r.id}" style="cursor:pointer"/>`;
+  g+=`<text x="${X(r.x+r.w/2)}" y="${Y(r.y+r.h/2)-4}" text-anchor="middle" font-size="11" font-weight="600" fill="#23201c" pointer-events="none">${r.n}</text><text x="${X(r.x+r.w/2)}" y="${Y(r.y+r.h/2)+10}" text-anchor="middle" font-size="9.5" font-family="IBM Plex Mono" fill="#857c71" pointer-events="none">${(r.w*r.h/1e6).toFixed(1)} м²</text>`});
+ // doors (gaps)
+ [[7600,2600,0],[10000,1800,0],[10000,5000,0],[4200,8900,0],[5200,8400,1],[7100,8400,1],[9000,8400,1],[10000,8900,0],[8600,6200,1],[12900,4200,1]].forEach(([x,y,h])=>{g+=h?`<line x1="${X(x)}" y1="${Y(y)}" x2="${X(x+800)}" y2="${Y(y)}" stroke="${s.floor.hall}" stroke-width="7"/><path d="M${X(x)} ${Y(y)} a${800*S} ${800*S} 0 0 1 ${800*S} ${800*S}" fill="none" stroke="#857c71" stroke-width=".8"/>`:`<line x1="${X(x)}" y1="${Y(y)}" x2="${X(x)}" y2="${Y(y+800)}" stroke="${s.floor.hall}" stroke-width="7"/><path d="M${X(x)} ${Y(y)} a${800*S} ${800*S} 0 0 0 ${800*S} ${800*S}" fill="none" stroke="#857c71" stroke-width=".8"/>`});
+ if(L.furn)F.forEach(([id,x,y,w,h,t])=>{const r=room(id);g+=`<rect x="${X(r.x+x)}" y="${Y(r.y+y)}" width="${w*S}" height="${h*S}" rx="3" fill="#fff" fill-opacity=".7" stroke="#857c71" stroke-width="1"/>`;if(t&&w*S>34)g+=`<text x="${X(r.x+x+w/2)}" y="${Y(r.y+y+h/2)+3}" text-anchor="middle" font-size="8" fill="#857c71">${t}</text>`});
+ if(L.el)EL.forEach(([id,x,y,k])=>{const r=room(id);g+=k=="r"?`<g transform="translate(${X(r.x+x)} ${Y(r.y+y)})"><circle r="5" fill="#fff" stroke="var(--el)" stroke-width="1.6"/><line x1="-3" y1="0" x2="3" y2="0" stroke="var(--el)" stroke-width="1.4"/><text x="7" y="-5" font-size="7" font-family="IBM Plex Mono" fill="var(--el)">h300</text></g>`:`<g transform="translate(${X(r.x+x)} ${Y(r.y+y)})"><rect x="-4" y="-4" width="8" height="8" fill="var(--el)"/><text x="7" y="-5" font-size="7" font-family="IBM Plex Mono" fill="var(--el)">h900</text></g>`});
+ if(L.li)LI.forEach(([id,x,y])=>{const r=room(id);g+=`<g transform="translate(${X(r.x+x)} ${Y(r.y+y)})"><circle r="6" fill="#fff" stroke="var(--li)" stroke-width="1.6"/><path d="M-4 -4L4 4M4 -4L-4 4" stroke="var(--li)" stroke-width="1.4"/></g>`});
+ if(L.wa)WA.forEach(([id,x,y])=>{const r=room(id);g+=`<g transform="translate(${X(r.x+x)} ${Y(r.y+y)})"><circle r="4" fill="var(--wa)"/><circle r="8" fill="none" stroke="var(--wa)" stroke-width=".8" stroke-dasharray="2 2"/></g>`});
+ if(L.dim){let xs=[...new Set(R.flatMap(r=>[r.x,r.x+r.w]))].sort((a,b)=>a-b),ys=[...new Set(R.flatMap(r=>[r.y,r.y+r.h]))].sort((a,b)=>a-b);
+  const dl=(a,b,horiz,off)=>{if(horiz){g+=`<line x1="${X(a)}" y1="${off}" x2="${X(b)}" y2="${off}" stroke="var(--acc)" stroke-width=".8"/><line x1="${X(a)}" y1="${off-4}" x2="${X(a)}" y2="${off+4}" stroke="var(--acc)"/><text x="${X((a+b)/2)}" y="${off-4}" text-anchor="middle" font-size="8" font-family="IBM Plex Mono" fill="var(--acc)">${b-a}</text>`}else{g+=`<line x1="${off}" y1="${Y(a)}" x2="${off}" y2="${Y(b)}" stroke="var(--acc)" stroke-width=".8"/><line x1="${off-4}" y1="${Y(a)}" x2="${off+4}" y2="${Y(a)}" stroke="var(--acc)"/><text x="${off-5}" y="${Y((a+b)/2)}" text-anchor="middle" font-size="8" font-family="IBM Plex Mono" fill="var(--acc)" transform="rotate(-90 ${off-5} ${Y((a+b)/2)})">${b-a}</text>`}};
+  const top=[0,7600,10000,14400];for(let i=0;i<top.length-1;i++)dl(top[i],top[i+1],1,pad-26);dl(0,14400,1,pad-46);
+  for(let i=0;i<ys.length-1;i++)dl(ys[i],ys[i+1],0,pad-24);dl(0,10000,0,pad-44);}
+ $("svg").innerHTML=`<svg viewBox="0 0 ${W} ${H}">${g}</svg>`;
+ $("svg").querySelectorAll("rect[data-id]").forEach(e=>e.onclick=()=>pick(e.dataset.id))}
+const $=id=>document.getElementById(id);
+function rooms(){const s=STY[st];$("rooms").innerHTML=R.filter(r=>r.t!="hall").map(r=>`<div class="room ${sel==r.id?"on":""}" data-id="${r.id}"><b>${r.n}</b><span>${(r.w/1000).toFixed(1)} × ${(r.h/1000).toFixed(1)} м · ${(r.w*r.h/1e6).toFixed(1)} м²</span><div class="pal">${s.acc.map(c=>`<i style="background:${c}"></i>`).join("")}</div></div>`).join("");
+ $("rooms").querySelectorAll(".room").forEach(e=>e.onclick=()=>pick(e.dataset.id))}
+function pick(id){sel=sel==id?null:id;svg();rooms();focus()}
+$("sheet").innerHTML=["Обмерный план","План демонтажа / монтажа стен","План расстановки мебели","План электрики с привязками","План освещения и выключателей","План сантехники с привязками","План полов","План потолков","Развертки стен санузлов","Развертка кухни","Ведомость отделочных материалов","Визуализации по комнатам"].map((t,i)=>`<div><span>${String(i+1).padStart(2,"0")}</span>${t}</div>`).join("");
+document.querySelectorAll("[data-l]").forEach(c=>c.onchange=()=>{L[c.dataset.l]=c.checked?1:0;svg()});
+document.querySelectorAll("#styles button").forEach(b=>b.onclick=()=>{document.querySelectorAll("#styles button").forEach(x=>x.classList.toggle("on",x==b));st=+b.dataset.s;svg();rooms();build()});
+// 3D
+let Rr,Sc,Cm,G,drag=null,rot={x:1.05,y:.5},dist=1,target=new THREE.Vector3(),tgt=new THREE.Vector3();
+function init(){const el=$("v3d");Rr=new THREE.WebGLRenderer({antialias:true,alpha:true});Rr.setPixelRatio(Math.min(devicePixelRatio,2));Rr.shadowMap.enabled=true;el.appendChild(Rr.domElement);
+ Sc=new THREE.Scene();Cm=new THREE.PerspectiveCamera(36,1,.1,200);Sc.add(new THREE.HemisphereLight(0xfff6ea,0x9a8f84,.75));const d=new THREE.DirectionalLight(0xffffff,.65);d.position.set(-8,16,6);d.castShadow=true;d.shadow.mapSize.set(2048,2048);Object.assign(d.shadow.camera,{left:-12,right:12,top:12,bottom:-12});Sc.add(d);
+ el.onpointerdown=e=>{drag=[e.clientX,e.clientY];el.setPointerCapture(e.pointerId)};el.onpointerup=()=>drag=null;el.onpointermove=e=>{if(!drag)return;rot.y-=(e.clientX-drag[0])*.006;rot.x=Math.max(.3,Math.min(1.45,rot.x+(e.clientY-drag[1])*.004));drag=[e.clientX,e.clientY]};
+ el.addEventListener("wheel",e=>{e.preventDefault();dist=Math.max(.35,Math.min(1.6,dist*(1+e.deltaY*.001)))},{passive:false});
+ const rs=()=>{const w=el.clientWidth,h=el.clientHeight;Rr.setSize(w,h);Cm.aspect=w/h;Cm.updateProjectionMatrix()};new ResizeObserver(rs).observe(el);rs();
+ (function loop(){target.lerp(tgt,.08);const r=26*dist;Cm.position.set(target.x+Math.sin(rot.y)*Math.cos(rot.x)*r,Math.sin(rot.x)*r,target.z+Math.cos(rot.y)*Math.cos(rot.x)*r);Cm.lookAt(target);Rr.render(Sc,Cm);requestAnimationFrame(loop)})()}
+const m=(c)=>new THREE.MeshStandardMaterial({color:c,roughness:.85});
+function box(w,h,d,x,y,z,mat){const b=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),mat);b.position.set(x,y,z);b.castShadow=b.receiveShadow=true;G.add(b);return b}
+function build(){if(G)Sc.remove(G);G=new THREE.Group();const s=STY[st],ox=-7.2,oz=-5,H=1.1,t=.12,wm=m(s.wall),fm=m(s.furn);
+ R.forEach(r=>{const x=r.x/1000,z=r.y/1000,w=r.w/1000,d=r.h/1000;box(w,.04,d,ox+x+w/2,0,oz+z+d/2,m(s.floor[r.t]));
+  const hh=sel&&sel==r.id?.25:H;
+  box(w,hh,t,ox+x+w/2,hh/2,oz+z,wm);box(w,hh,t,ox+x+w/2,hh/2,oz+z+d,wm);box(t,hh,d,ox+x,hh/2,oz+z+d/2,wm);box(t,hh,d,ox+x+w,hh/2,oz+z+d/2,wm)});
+ F.forEach(([id,x,y,w,h,tx])=>{const r=room(id),X=(r.x+x)/1000,Z=(r.y+y)/1000,W=w/1000,D=h/1000;const ht=/Кровать/.test(tx)?.45:/Диван/.test(tx)?.7:/Ванна|Душ/.test(tx)?.5:/Кухня|Остров|Комод|Шкаф|Котёл|СМА/.test(tx)?.9:.75;
+  box(W,ht,D,ox+X+W/2,ht/2,oz+Z+D/2,/Ванна|Душ|Раковина/.test(tx)?m("#f4f4f2"):/Кровать/.test(tx)?m(s.acc[1]):/Диван/.test(tx)?m(s.acc[2]):fm)});
+ Sc.add(G)}
+function focus(){build();if(!sel){tgt.set(0,0,0);dist=1;return}const r=room(sel);tgt.set(-7.2+(r.x+r.w/2)/1000,0,-5+(r.y+r.h/2)/1000);dist=.5}
+svg();rooms();init();build();
+</script>
+</body>
+</html>
